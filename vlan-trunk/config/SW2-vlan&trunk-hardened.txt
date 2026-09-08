@@ -17,7 +17,7 @@ vlan 20
 vlan 99
  name NATIVE
  exit
-interface GigabitEthernet0/0
+interface GigabitEthernet0/1
  switchport trunk encapsulation dot1q
  switchport mode trunk
  switchport trunk native vlan 99
