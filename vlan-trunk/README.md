@@ -11,7 +11,7 @@ two switches. This is the foundation lab for:
 ## Topology
 
 ```
-                 Gi0/0          Gi0/0
+                 Gi0/1          Gi0/1
  [ Sales PC ]---[ SW1 ]==================[ SW2 ]---[ Engineering PC ]
    VLAN 10    Gi0/1    802.1Q trunk        Gi0/2        VLAN 20
               access   (VLAN 10 + 20)      access
@@ -21,7 +21,7 @@ two switches. This is the foundation lab for:
 
 | VLAN | Name        | SW1 access port | SW2 access port |
 |------|-------------|-----------------|-----------------|
-| 10   | SALES       | Gi0/1           | (trunk only)    |
+| 10   | SALES       | Gi0/2           | (trunk only)    |
 | 20   | ENGINEERING | (trunk only)    | Gi0/2           |
 
 Both VLANs exist on both switches; the Gi0/0 trunk carries them between SW1 and SW2.
