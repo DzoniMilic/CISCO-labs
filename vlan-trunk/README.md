@@ -11,7 +11,7 @@ two switches. This is the foundation lab for:
 ## Topology
 
 ```
-                 Gi0/1          Gi0/1
+                     Gi0/1             Gi0/1
  [ Sales PC ]---[ SW1 ]==================[ SW2 ]---[ Engineering PC ]
    VLAN 10    Gi0/1    802.1Q trunk        Gi0/2        VLAN 20
               access   (VLAN 10 + 20)      access
