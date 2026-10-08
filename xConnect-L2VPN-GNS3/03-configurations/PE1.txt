@@ -1,0 +1,39 @@
+# PE1 Configuration
+
+```cisco
+hostname PE1
+
+interface GigabitEthernet0/1
+ ip address 10.10.10.1 255.255.255.252
+ no shutdown
+
+interface GigabitEthernet0/2
+ no ip address
+ no shutdown
+
+interface Loopback1
+ ip address 11.11.11.11 255.255.255.255
+
+router ospf 1
+ !
+ ! OSPF network statements / configuration
+ !
+ mpls ldp autoconfig
+
+mpls ldp router-id Loopback1
+
+interface GigabitEthernet0/2
+ xconnect 44.44.44.44 10 encapsulation mpls
+```
+
+## Role
+
+PE1 is the Provider Edge router.
+
+Responsibilities:
+
+* OSPF
+* MPLS
+* LDP
+* xConnect
+* CE1 attachment circuit
