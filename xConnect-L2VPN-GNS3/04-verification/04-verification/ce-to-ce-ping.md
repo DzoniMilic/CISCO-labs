@@ -1,125 +1,79 @@
-# CE-to-CE Ping Verification
+## CE-to-CE Ping Verification## 1. Goal
+This is the final end-to-end test of the whole lab.
+Customer devices:
 
-## 1. Cilj
-
-Ovo je završni end-to-end test celog laba.
-
-Customer uređaji:
-
-```text
 CE1
 Gi0/0 = 192.168.10.1/24
-```
 
-i:
+and:
 
-```text
 CE2
 Gi0/0 = 192.168.10.2/24
-```
 
-nalaze se u istoj Layer-3 subnet mreži:
+are located in the same Layer-3 subnet network:
 
-```text
 192.168.10.0/24
-```
 
-Između njih nema Layer-3 routing-a na PE uređajima.
+Between them there is no Layer-3 routing on PE devices.
+Traffic is transported as Layer-2 Ethernet over xConnect pseudowire.
+------------------------------
+## 2. Verification of CE1 interface
+On CE1:
 
-Saobraćaj se prenosi kao Layer-2 Ethernet preko xConnect pseudowire-a.
-
----
-
-## 2. Provera CE1 interfejsa
-
-Na CE1:
-
-```text
 show ip interface brief
-```
 
-Očekivano:
+Expected:
 
-```text
 GigabitEthernet0/0    192.168.10.1    up    up
-```
 
----
+------------------------------
+## 3. Verification of CE2 interface
+On CE2:
 
-## 3. Provera CE2 interfejsa
-
-Na CE2:
-
-```text
 show ip interface brief
-```
 
-Očekivano:
+Expected:
 
-```text
 GigabitEthernet0/0    192.168.10.2    up    up
-```
 
----
-
+------------------------------
 ## 4. CE1 -> CE2 ping
+On CE1:
 
-Na CE1:
-
-```text
 ping 192.168.10.2
-```
 
-Uspešan rezultat:
+Successful result:
 
-```text
 !!!!!
 Success rate is 100 percent (5/5)
-```
 
-U ovom labu dobijen je uspešan rezultat:
+In this lab a successful result was obtained:
 
-```text
 Success rate is 100 percent (5/5)
 round-trip min/avg/max = 12/16/24 ms
-```
 
----
-
+------------------------------
 ## 5. CE2 -> CE1 ping
+On CE2:
 
-Na CE2:
-
-```text
 ping 192.168.10.1
-```
 
-Očekivano:
+Expected:
 
-```text
 !!!!!
 Success rate is 100 percent (5/5)
-```
 
-Obostrani ping je važan jer potvrđuje da komunikacija radi u oba smera.
+Bi-directional ping is important because it confirms that communication works in both directions.
+------------------------------
+## 6. What happens when CE1 pings CE2
+CE1 verifies that:
 
----
-
-## 6. Šta se dešava kada CE1 ping-uje CE2
-
-CE1 proverava da je:
-
-```text
 192.168.10.2
-```
 
-u istoj lokalnoj subnet mreži.
+is in the same local subnet network.
+Then CE1 uses ARP to learn the MAC address of CE2.
+ARP broadcast goes:
 
-Zatim CE1 koristi ARP da sazna MAC adresu CE2.
-
-ARP broadcast ide:
-
-```text
 CE1
  ↓
 PE1 Gi0/2
@@ -131,42 +85,27 @@ MPLS pseudowire
 PE2 Gi0/2
  ↓
 CE2
-```
 
-CE2 odgovara svojim MAC adresama.
+CE2 replies with its MAC addresses.
+After that ICMP Ethernet frame goes via the same L2VPN path between CE devices.
+------------------------------
+## 7. Important thing: PE routers do not route 192.168.10.0/24
+PE1 has no need for:
 
-Nakon toga ICMP Ethernet frame ide istim L2VPN putem između CE uređaja.
-
----
-
-## 7. Bitna stvar: PE ruteri ne rutiraju 192.168.10.0/24
-
-PE1 nema potrebu za:
-
-```text
 192.168.10.0/24
-```
 
-u svojoj routing tabeli zbog ovog xConnect-a.
+in its routing table because of this xConnect.
+The same applies to PE2.
+Provider core knows how to reach:
 
-Isto važi za PE2.
-
-Provider core zna kako da dođe do:
-
-```text
 PE1 Loopback = 11.11.11.11
 PE2 Loopback = 44.44.44.44
-```
 
-MPLS/LDP obezbeđuje transport kroz core.
+MPLS/LDP provides transport through the core.
+xConnect connects customer Ethernet domains.
+------------------------------
+## 8. End-to-end chain
 
-xConnect povezuje customer Ethernet domene.
-
----
-
-## 8. End-to-end lanac
-
-```text
 CE1
 192.168.10.1
    |
@@ -194,21 +133,17 @@ PE2
    |
 CE2
 192.168.10.2
-```
 
----
+------------------------------
+## 9. What CE-to-CE ping proves
+Successful ping proves that the following are simultaneously functional:
 
-## 9. Šta CE-to-CE ping dokazuje
-
-Uspešan ping dokazuje da su istovremeno funkcionalni:
-
-```text
 CE interfaces
       ↓
 PE attachment circuits
       ↓
 xConnect
-      ↓
+      ^^
 MPLS pseudowire
       ↓
 LDP
@@ -220,103 +155,67 @@ OSPF reachability
 remote PE
       ↓
 CE2
-```
 
-Zato je CE-to-CE ping najvažniji završni test ovog laba.
+That is why CE-to-CE ping is the most important final test of this lab.
+------------------------------
+## 10. Troubleshooting if ping does not work
+If:
 
----
-
-## 10. Troubleshooting ako ping ne radi
-
-Ako:
-
-```text
 CE1 -> CE2 = FAIL
-```
 
-ne treba odmah menjati CE konfiguraciju.
+one should not immediately change the CE configuration.
+Verify in order:
+## 1. CE interfaces
 
-Proveravati redom:
-
-### 1. CE interfejsi
-
-```text
 show ip interface brief
-```
 
-Mora biti:
+Must be:
 
-```text
 up/up
-```
 
-### 2. PE attachment circuit
+## 2. PE attachment circuit
+On PE1/PE2:
 
-Na PE1/PE2:
-
-```text
 show interfaces GigabitEthernet0/2
-```
 
-Mora biti:
+Must be:
 
-```text
 up/up
-```
 
-### 3. xConnect
+## 3. xConnect
 
-```text
 show xconnect all
-```
 
-Mora biti:
+Must be:
 
-```text
 UP
-```
 
-### 4. LDP
+## 4. LDP
 
-```text
 show mpls ldp neighbor
-```
 
-Svi relevantni susedi moraju biti:
+All relevant neighbors must be:
 
-```text
 Oper
-```
 
-### 5. PE Loopback reachability
+## 5. PE Loopback reachability
+From PE1:
 
-Sa PE1:
-
-```text
 ping 44.44.44.44 source 11.11.11.11
-```
 
-### 6. ARP
+## 6. ARP
+On CE1:
 
-Na CE1:
-
-```text
 show arp
-```
 
-Na CE2:
+On CE2:
 
-```text
 show arp
-```
 
-Ako CE uređaji ne uče međusobne MAC/ARP informacije, proveriti L2 putanju.
+If CE devices do not learn each other's MAC/ARP information, verify the L2 path.
+------------------------------
+## 11. Final verification checklist
 
----
-
-## 11. Završni verification checklist
-
-```text
 [OK] CE1 Gi0/0 = 192.168.10.1/24
 [OK] CE2 Gi0/0 = 192.168.10.2/24
 [OK] CE1 interface = up/up
@@ -338,46 +237,30 @@ Ako CE uređaji ne uče međusobne MAC/ARP informacije, proveriti L2 putanju.
 
 [OK] CE1 -> CE2 ping = 100%
 [OK] CE2 -> CE1 ping = 100%
-```
 
----
-
+------------------------------
 ## 12. Final result
+Cisco xConnect L2VPN is successfully implemented over the MPLS provider network.
+Customer network:
 
-Cisco xConnect L2VPN je uspešno realizovan preko MPLS provider mreže.
-
-Customer mreža:
-
-```text
 192.168.10.0/24
-```
 
-funkcioniše kao jedna Layer-2 Ethernet domena preko provider infrastrukture:
+functions as a single Layer-2 Ethernet domain over the provider infrastructure:
 
-```text
 CE1 — PE1 — P1 — P2 — PE2 — CE2
-```
 
-Provider core koristi:
+Provider core uses:
 
-```text
 OSPF
 LDP
 MPLS
-```
 
-dok xConnect obezbeđuje:
+while xConnect provides:
 
-```text
 Layer-2 pseudowire
-```
 
-između PE1 i PE2.
+between PE1 and PE2.
+Final proof of functionality:
 
-Konačni dokaz funkcionalnosti:
-
-```text
 CE1 -> CE2 = 100%
 CE2 -> CE1 = 100%
-```
-
