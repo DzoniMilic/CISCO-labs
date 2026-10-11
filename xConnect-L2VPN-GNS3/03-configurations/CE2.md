@@ -13,7 +13,7 @@ hostname CE2
 
 interface GigabitEthernet0/0
  description CUSTOMER-LAN-to-PE2
- ip address 192.168.10.1 255.255.255.0
+ ip address 192.168.10.2 255.255.255.0
  no shutdown
 ```
 
@@ -29,7 +29,7 @@ ping 192.168.10.2
 Expected:
 
 ```text
-GigabitEthernet0/0    192.168.10.1    up    up
+GigabitEthernet0/0    192.168.10.2    up    up
 ```
 
 CE2 ne koristi:
@@ -39,5 +39,5 @@ CE2 ne koristi:
 * MPLS
 * xConnect
 
-CE1 samo šalje Ethernet/IP saobraćaj prema PE1.
+CE2 samo šalje Ethernet/IP saobraćaj prema PE2.
 
