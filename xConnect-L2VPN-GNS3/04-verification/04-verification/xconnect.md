@@ -1,12 +1,7 @@
-# xConnect Verification
+## xConnect Verification## 1. Goal
+xConnect represents a Layer-2 VPN pseudowire between PE1 and PE2.
+In this lab:
 
-## 1. Cilj
-
-xConnect predstavlja Layer-2 VPN pseudowire između PE1 i PE2.
-
-U ovom labu:
-
-```text
 CE1
  |
 PE1
@@ -18,322 +13,208 @@ P2
 PE2
  |
 CE2
-```
 
-xConnect endpoint-i:
+xConnect endpoints:
 
-```text
 PE1 Gi0/2
      |
      | VC ID 10
      |
 PE2 Gi0/2
-```
 
-PE1 koristi udaljeni PE Loopback:
+PE1 uses the remote PE Loopback:
 
-```text
 44.44.44.44
-```
 
-PE2 koristi:
+PE2 uses:
 
-```text
 11.11.11.11
-```
 
----
+------------------------------
+## 2. Configuration of PE1
 
-## 2. Konfiguracija PE1
-
-```text
 interface GigabitEthernet0/2
  xconnect 44.44.44.44 10 encapsulation mpls
-```
 
-## 3. Konfiguracija PE2
+## 3. Configuration of PE2
 
-```text
 interface GigabitEthernet0/2
  xconnect 11.11.11.11 10 encapsulation mpls
-```
 
-VC ID je:
+VC ID is:
 
-```text
 10
-```
 
-na obe strane.
+on both sides.
+------------------------------
+## 4. Verification of xConnect
+On PE1:
 
----
-
-## 4. Provera xConnect-a
-
-Na PE1:
-
-```text
 show xconnect all
-```
 
-Očekivano:
+Expected:
 
-```text
 XC ST  Segment 1                      S1  Segment 2
 UP     ac Gi0/2:4(Ethernet)           UP  mpls 44.44.44.44:10
-```
 
-Na PE2:
+On PE2:
 
-```text
 show xconnect all
-```
 
-Očekivano:
+Expected:
 
-```text
 XC ST  Segment 1                      S1  Segment 2
 UP     ac Gi0/2:4(Ethernet)           UP  mpls 11.11.11.11:10
-```
 
----
+------------------------------
+## 5. How to read the output
+Example:
 
-## 5. Kako čitati rezultat
-
-Primer:
-
-```text
 UP
-```
 
-prvi status znači da je xConnect aktivan.
-
+the first status means that xConnect is active.
 Attachment Circuit:
 
-```text
 ac Gi0/2
-```
 
-predstavlja lokalnu Ethernet stranu prema CE uređaju.
+represents the local Ethernet side towards the CE device.
+The other side:
 
-Druga strana:
-
-```text
 mpls 44.44.44.44:10
-```
 
-predstavlja MPLS pseudowire prema udaljenom PE.
+represents the MPLS pseudowire towards the remote PE.
+------------------------------
+## 6. What must be UP
+For a proper xConnect, the following must be UP:
 
----
-
-## 6. Šta mora biti UP
-
-Za ispravan xConnect moraju biti UP:
-
-```text
 xConnect       = UP
 Attachment     = UP
 Pseudowire     = UP
-```
 
-Ako je:
+If:
 
-```text
 AC = DOWN
-```
 
-problem je lokalno između CE i PE.
+the problem is local between CE and PE.
+If:
 
-Ako je:
-
-```text
 AC = UP
 PW = DOWN
-```
 
-problem je u provider transportu / LDP / udaljenom PE / VC konfiguraciji.
+the problem is in provider transport / LDP / remote PE / VC configuration.
+------------------------------
+## 7. Verification of CE-facing interfaces
+On PE1:
 
----
-
-## 7. Provera CE-facing interfejsa
-
-Na PE1:
-
-```text
 show interfaces GigabitEthernet0/2
-```
 
-Na PE2:
+On PE2:
 
-```text
 show interfaces GigabitEthernet0/2
-```
 
-Očekivano:
+Expected:
 
-```text
 GigabitEthernet0/2 is up, line protocol is up
-```
 
-Interfejs nema IP adresu:
+The interface has no IP address:
 
-```text
 Internet protocol processing disabled
-```
 
-ili odgovarajući `unassigned` prikaz u:
+or the corresponding unassigned display in:
 
-```text
 show ip interface brief
-```
 
-To je normalno.
+That is normal.
+------------------------------
+## 8. Why PE Gi0/2 has no IP address
+Gi0/2 is not a Layer-3 routed interface.
+It represents:
 
----
-
-## 8. Zašto PE Gi0/2 nema IP adresu
-
-Gi0/2 nije Layer-3 routed interface.
-
-On predstavlja:
-
-```text
 Attachment Circuit
-```
 
-od CE uređaja ka pseudowire-u.
+from the CE device to the pseudowire.
+CE1 has:
 
-CE1 ima:
-
-```text
 192.168.10.1/24
-```
 
-CE2 ima:
+CE2 has:
 
-```text
 192.168.10.2/24
-```
 
-PE1 i PE2 ne moraju imati IP adresu na tim interfejsima.
+PE1 and PE2 do not need to have an IP address on those interfaces.
+The Ethernet frame from CE1 is forwarded through the pseudowire to CE2.
+------------------------------
+## 9. Verification of pseudowire status
+On PE1:
 
-Ethernet frame sa CE1 se prosleđuje kroz pseudowire do CE2.
-
----
-
-## 9. Provera pseudowire statusa
-
-Na PE1:
-
-```text
 show xconnect all
-```
 
-Na PE2:
+On PE2:
 
-```text
 show xconnect all
-```
 
-Mora se videti:
+One must see:
 
-```text
 mpls <remote-PE-loopback>:10
-```
 
-i status:
+and status:
 
-```text
 UP
-```
 
-VC ID mora biti isti na obe strane:
+VC ID must be the same on both sides:
 
-```text
 PE1 = 10
 PE2 = 10
-```
 
----
+------------------------------
+## 10. Verification of pseudowire interface
+On PE1:
 
-## 10. Provera pseudowire interfejsa
-
-Na PE1:
-
-```text
 show interfaces pseudowire0
-```
 
-Na PE2:
+On PE2:
 
-```text
 show interfaces pseudowire0
-```
 
-Treba proveriti da je pseudowire interfejs operativan.
+It should be checked that the pseudowire interface is operational.
+During successful pseudowire formation, the following may appear:
 
-Tokom uspešnog formiranja pseudowire-a može se pojaviti:
-
-```text
 %LINEPROTO-5-UPDOWN:
 Line protocol on Interface pseudowire0, changed state to up
-```
 
----
+------------------------------
+## 11. Verification of MAC/ARP behavior
+On CE1:
 
-## 11. Provera MAC/ARP ponašanja
-
-Na CE1:
-
-```text
 show arp
-```
 
-Na CE2:
+On CE2:
 
-```text
 show arp
-```
 
-Nakon međusobnog pinga CE uređaji treba da nauče ARP/MAC informacije potrebne za komunikaciju.
+After a mutual ping, CE devices should learn the ARP/MAC information required for communication.
+Important thing:
+ARP request is a broadcast.
+xConnect allows the Ethernet broadcast from one CE to be transported over the pseudowire to the other CE.
+That is why CE1 and CE2 can be in the same subnet network:
 
-Bitna stvar:
-
-ARP request je broadcast.
-
-xConnect omogućava da se Ethernet broadcast sa jednog CE-a prenese preko pseudowire-a do drugog CE-a.
-
-Zato CE1 i CE2 mogu biti u istoj subnet mreži:
-
-```text
 192.168.10.0/24
-```
 
-iako između njih postoji MPLS provider core.
-
----
-
+even though there is an MPLS provider core between them.
+------------------------------
 ## 12. End-to-end test
+On CE1:
 
-Na CE1:
-
-```text
 ping 192.168.10.2
-```
 
-Na CE2:
+On CE2:
 
-```text
 ping 192.168.10.1
-```
 
-Ako ping radi, dokazano je da L2VPN funkcioniše end-to-end.
-
----
-
+If the ping works, it is proven that the L2VPN functions end-to-end.
+------------------------------
 ## 13. xConnect verification checklist
 
-```text
 [OK] PE1 Gi0/2 = up/up
 [OK] PE2 Gi0/2 = up/up
 [OK] PE1 xConnect = UP
@@ -344,20 +225,15 @@ Ako ping radi, dokazano je da L2VPN funkcioniše end-to-end.
 [OK] VC ID PE2 = 10
 [OK] Remote PE Loopbacks reachable
 [OK] CE Ethernet connectivity works
-```
 
-## 14. Najvažnije komande
+## 14. Most important commands
 
-```text
 show xconnect all
 show interfaces GigabitEthernet0/2
 show interfaces pseudowire0
 show ip interface brief
 show arp
-```
 
-## 15. Šta je dokazano
-
-xConnect je uspešno formirao MPLS pseudowire između PE1 i PE2.
-
-Customer Ethernet saobraćaj može da se prenosi između CE1 i CE2 preko MPLS provider core-a.
+## 15. What is proven
+xConnect has successfully formed an MPLS pseudowire between PE1 and PE2.
+Customer Ethernet traffic can be transported between CE1 and CE2 over the MPLS provider core.
