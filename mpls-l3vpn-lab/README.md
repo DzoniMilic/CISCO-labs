@@ -6,7 +6,7 @@ Implementacija MPLS L3VPN mreže koristeći Cisco IOSv rutere i GNS3.
 
 ## 2. Topologija
 
-[slika topologije]
+![](images/Pasted%mpls%L3VPN%lab.png)
 
 ## 3. Network devices
 
