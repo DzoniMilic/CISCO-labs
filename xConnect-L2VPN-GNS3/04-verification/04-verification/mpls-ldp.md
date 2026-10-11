@@ -1,13 +1,7 @@
+## MPLS / LDP Verification## 1. Goal
+MPLS and LDP provide pseudowire transport between PE routers.
+Logic:
 
-# MPLS / LDP Verification
-
-## 1. Cilj
-
-MPLS i LDP obezbeđuju transport pseudowire-a između PE rutera.
-
-Logika:
-
-```text
 OSPF
   ↓
 IP reachability
@@ -17,136 +11,94 @@ LDP
 MPLS labels
   ↓
 Pseudowire transport
-```
 
-LDP koristi Loopback adrese provider rutera kao LDP Router-ID.
-
----
-
+LDP uses Loopback addresses of provider routers as LDP Router-ID.
+------------------------------
 ## 2. LDP Router-ID
+On PE/P devices:
 
-Na PE/P uređajima:
-
-```text
 show mpls ldp parameters
-```
 
-LDP Router-ID treba da bude Loopback 1:
+LDP Router-ID should be Loopback 1:
 
-```text
 PE1 = 11.11.11.11
 P1  = 1.1.1.1
 P2  = 2.2.2.2
 PE2 = 44.44.44.44
-```
 
-Konfiguracija je:
+Configuration is:
 
-```text
 mpls ldp router-id Loopback 1
-```
 
----
+------------------------------
+## 3. Verification of MPLS interfaces
+On PE/P devices:
 
-## 3. Provera MPLS interfejsa
-
-Na PE/P uređajima:
-
-```text
 show mpls interfaces
-```
 
-Provider-facing interfejsi treba da budu MPLS enabled.
+Provider-facing interfaces should be MPLS enabled.
+Example:
 
-Primer:
-
-```text
 PE1 Gi0/1
 P1  Gi0/0
 P1  Gi0/1
 P2  Gi0/0
 P2  Gi0/1
 PE2 Gi0/1
-```
 
-CE-facing interfejsi:
+CE-facing interfaces:
 
-```text
 PE1 Gi0/2
 PE2 Gi0/2
-```
 
-nisu MPLS core interfejsi.
+are not MPLS core interfaces.
+------------------------------
+## 4. Verification of LDP neighbors
+Command:
 
----
-
-## 4. Provera LDP suseda
-
-Komanda:
-
-```text
 show mpls ldp neighbor
-```
 
-Očekivani LDP susedi:
+Expected LDP neighbors:
+## PE1
 
-### PE1
-
-```text
 1.1.1.1:0
 State: Oper
-```
 
-### P1
+## P1
 
-```text
 11.11.11.11:0
 State: Oper
 
 2.2.2.2:0
 State: Oper
-```
 
-### P2
+## P2
 
-```text
 1.1.1.1:0
 State: Oper
 
 44.44.44.44:0
 State: Oper
-```
 
-### PE2
+## PE2
 
-```text
 2.2.2.2:0
 State: Oper
-```
 
----
+------------------------------
+## 5. What State: Oper means
+Oper means that the LDP session with the neighbor is operational.
+For this lab, there must be:
 
-## 5. Šta znači State: Oper
-
-`Oper` znači da je LDP session sa susedom operativan.
-
-Za ovaj lab mora postojati:
-
-```text
 PE1 <-> P1    LDP Oper
 P1  <-> P2    LDP Oper
 P2  <-> PE2   LDP Oper
-```
 
-Ako LDP session nije `Oper`, MPLS pseudowire neće moći normalno da koristi MPLS transport.
+If the LDP session is not Oper, the MPLS pseudowire will not be able to normally use MPLS transport.
+------------------------------
+## 6. LDP adjacency must follow OSPF topology
+Expected structure:
 
----
-
-## 6. LDP adjacency mora pratiti OSPF topologiju
-
-Očekivana struktura:
-
-```text
 PE1
  |
 P1
@@ -154,40 +106,29 @@ P1
 P2
  |
 PE2
-```
 
-LDP ne pravi direktan session:
+LDP does not build a direct session:
 
-```text
 PE1 <----> PE2
-```
 
-preko celog core-a.
+across the entire core.
+LDP sessions exist between directly connected MPLS routers, while MPLS label switching allows the packet/pseudowire to pass through the entire core.
+------------------------------
+## 7. Verification of MPLS forwarding table
+Command:
 
-LDP sessions postoje između direktno povezanih MPLS rutera, dok MPLS label switching omogućava da paket/pseudowire prođe kroz ceo core.
-
----
-
-## 7. Provera MPLS forwarding table
-
-Komanda:
-
-```text
 show mpls forwarding-table
-```
 
-Tabela treba da sadrži MPLS label entries.
-
-Ona pokazuje kako lokalni router obrađuje MPLS pakete:
+The table should contain MPLS label entries.
+It shows how the local router processes MPLS packets:
 
 * Incoming Label
 * Outgoing Label
 * Outgoing interface
 * Next-hop
 
-Primer logike:
+Example logic:
 
-```text
 Incoming Label
       ↓
 Label lookup
@@ -195,63 +136,41 @@ Label lookup
 Outgoing Label
       ↓
 Next-hop / Interface
-```
 
-Tačan broj labela zavisi od IOS verzije i trenutnog stanja LDP-a.
+The exact number of labels depends on the IOS version and the current state of LDP.
+------------------------------
+## 8. Verification of reachability of PE Loopback addresses
+From PE1:
 
----
-
-## 8. Provera reachability-ja PE Loopback adresa
-
-Sa PE1:
-
-```text
 ping 44.44.44.44 source 11.11.11.11
-```
 
-Sa PE2:
+From PE2:
 
-```text
 ping 11.11.11.11 source 44.44.44.44
-```
 
-Ovo potvrđuje da postoji IP reachability kroz provider core.
+This confirms that IP reachability exists through the provider core.
+For a complete MPLS check, we combine:
 
-Za potpunu MPLS proveru kombinujemo:
-
-```text
 show mpls ldp neighbor
 show mpls forwarding-table
 ping remote-loopback
-```
 
----
-
-## 9. Važna razlika: OSPF vs LDP
-
+------------------------------
+## 9. Important difference: OSPF vs LDP
 OSPF:
 
-```text
 PE1 ---- P1 ---- P2 ---- PE2
-```
 
-obezbeđuje IP routing informacije.
-
+provides IP routing information.
 LDP:
 
-```text
 PE1 ---- P1 ---- P2 ---- PE2
-```
 
-distribuira MPLS label informacije.
+distributes MPLS label information.
+OSPF by itself does not create an MPLS pseudowire.
+LDP by itself does not represent a customer L2VPN.
+For xConnect, a complete chain is required:
 
-OSPF sam po sebi ne pravi MPLS pseudowire.
-
-LDP sam po sebi ne predstavlja customer L2VPN.
-
-Za xConnect je potreban kompletan lanac:
-
-```text
 OSPF
  ↓
 IP reachability
@@ -263,13 +182,10 @@ MPLS transport
 xConnect / pseudowire
  ↓
 CE-to-CE L2 connectivity
-```
 
----
-
+------------------------------
 ## 10. MPLS/LDP verification checklist
 
-```text
 [OK] MPLS enabled on provider interfaces
 [OK] LDP Router-ID = Loopback 1
 [OK] PE1-P1 LDP = Oper
@@ -277,21 +193,16 @@ CE-to-CE L2 connectivity
 [OK] P2-PE2 LDP = Oper
 [OK] MPLS forwarding entries exist
 [OK] PE Loopbacks reachable
-```
 
-## 11. Najvažnije komande
+## 11. Most important commands
 
-```text
 show mpls interfaces
 show mpls ldp parameters
 show mpls ldp neighbor
 show mpls forwarding-table
 ping 44.44.44.44 source 11.11.11.11
 ping 11.11.11.11 source 44.44.44.44
-```
 
-## 12. Šta je dokazano
-
-LDP je operativan kroz ceo MPLS core, MPLS forwarding postoji i PE Loopback adrese su međusobno dostupne.
-
-Time je MPLS transport spreman za xConnect pseudowire.
+## 12. What is proven
+LDP is operational through the entire MPLS core, MPLS forwarding exists, and PE Loopback addresses are mutually reachable.
+With this, MPLS transport is ready for the xConnect pseudowire.
