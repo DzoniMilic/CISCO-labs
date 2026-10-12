@@ -1,175 +1,47 @@
-PE1#show run
-Building configuration...
-
-Current configuration : 4059 bytes
+! Device: PE1
+! Role: Provider Edge - Customer Site A
+! Platform: Cisco IOS 15.6
 !
-! Last configuration change at 21:31:13 UTC Mon Oct 12 2026
-!
-version 15.6
-service timestamps debug datetime msec
-service timestamps log datetime msec
-no service password-encryption
-!
-hostname PE1
-!
-boot-start-marker
-boot-end-marker
-!
-!
-!
-no aaa new-model
-ethernet lmi ce
-!
-!
-!
-mmi polling-interval 60
-no mmi auto-configure
-no mmi pvc
-mmi snmp-timeout 180
-!
-!
-!
-!
-!
-!
-!
-!
+! Customer VRF
 ip vrf CUSTOMER_A
- rd 65000:10
- route-target export 65000:10
- route-target import 65000:10
+rd 65000:10
+route-target export 65000:10
+route-target import 65000:10
 !
-!
-!
-!
-ip cef
-no ipv6 cef
-!
-multilink bundle-name authenticated
-mpls ldp discovery targeted-hello accept
-!
-!
-!
-!
-!
-redundancy
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
+! PE loopback used for routing and MP-BGP
 interface Loopback1
- ip address 11.11.11.11 255.255.255.255
+ip address 11.11.11.11 255.255.255.255
 !
-interface GigabitEthernet0/0
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
+! Provider core link to P1
 interface GigabitEthernet0/1
- ip address 10.10.10.1 255.255.255.252
- duplex auto
- speed auto
- media-type rj45
- mpls ip
+ip address 10.10.10.1 255.255.255.252
+mpls ip
 !
+! Customer-facing interface toward CE1
 interface GigabitEthernet0/2
- ip vrf forwarding CUSTOMER_A
- ip address 192.168.10.2 255.255.255.0
- duplex auto
- speed auto
- media-type rj45
+ip vrf forwarding CUSTOMER_A
+ip address 192.168.10.2 255.255.255.0
 !
-interface GigabitEthernet0/3
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
-interface GigabitEthernet0/4
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
-interface GigabitEthernet0/5
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
-interface GigabitEthernet0/6
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
-interface GigabitEthernet0/7
- no ip address
- shutdown
- duplex auto
- speed auto
- media-type rj45
-!
+! Provider OSPF
 router ospf 1
- mpls ldp autoconfig
- network 10.10.10.0 0.0.0.3 area 0
- network 11.11.11.11 0.0.0.0 area 0
+mpls ldp autoconfig
+network 10.10.10.0 0.0.0.3 area 0
+network 11.11.11.11 0.0.0.0 area 0
 !
+! MP-BGP VPNv4
 router bgp 65000
- bgp log-neighbor-changes
- neighbor 44.44.44.44 remote-as 65000
- neighbor 44.44.44.44 update-source Loopback1
- !
- address-family vpnv4
-  neighbor 44.44.44.44 activate
-  neighbor 44.44.44.44 send-community extended
- exit-address-family
- !
- address-family ipv4 vrf CUSTOMER_A
-  redistribute connected
- exit-address-family
+bgp log-neighbor-changes
+neighbor 44.44.44.44 remote-as 65000
+neighbor 44.44.44.44 update-source Loopback1
 !
-ip forward-protocol nd
+address-family vpnv4
+neighbor 44.44.44.44 activate
+neighbor 44.44.44.44 send-community extended
+exit-address-family
 !
+address-family ipv4 vrf CUSTOMER_A
+redistribute connected
+exit-address-family
 !
-no ip http server
-no ip http secure-server
-!
-!
-!
+! LDP router ID
 mpls ldp router-id Loopback1 force
-!
-control-plane
-!
-banner exec ^C
-
-!
-line con 0
-line aux 0
-line vty 0 4
- login
- transport input none
-!
-no scheduler allocate
-!
-end
-
-PE1#
-
