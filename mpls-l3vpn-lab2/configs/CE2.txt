@@ -4,6 +4,7 @@
 !
 ! Customer LAN connection to PE2
 interface GigabitEthernet0/0
+description CUSTOMER_LAN_to_PE2
 ip address 192.168.20.1 255.255.255.0
 !
 ! Static route to remote customer site (Site A)
