@@ -1,5 +1,5 @@
-
-Current configuration : 3388 bytes
+```text
+!
 !
 version 15.9
 service timestamps debug datetime msec
