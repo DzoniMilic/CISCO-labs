@@ -2,7 +2,7 @@
 
 ## 1. Cilj projekta
 
-Implementacija MPLS L3VPN mreže koristeći Cisco IOSv rutere i GNS3.
+Implementation of an MPLS L3VPN network using Cisco IOSv routers and GNS3.
 
 ## 2. Topologija
 
