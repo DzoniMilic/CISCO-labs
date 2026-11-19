@@ -26,8 +26,8 @@ The two routed links use different subnets. Mint1 reaches the server network thr
 
 - `docs/02-LAB-NETWORK-AND-CONNECTIVITY.md` — current topology, addressing, and connectivity setup.
 - `docs/07-TROUBLESHOOTING.md` — issues observed and the fixes verified in this lab.
+- `docs/COMMAND-REFERENCE.md` — Linux Mint commands used for interface discovery, temporary addressing, routing, and diagnosis.
 - `docs/SCREENSHOT-INDEX.md` — evidence index to be expanded as screenshots are captured.
-- `configs/` — sanitized example configurations; real credentials do not belong in this repository.
 
 ## Security note
 
