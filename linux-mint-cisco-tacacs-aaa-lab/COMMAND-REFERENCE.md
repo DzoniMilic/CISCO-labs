@@ -44,7 +44,8 @@ sudo ip addr add 192.168.51.2/24 dev ens36
 sudo ip route add 192.168.50.0/24 via 192.168.51.1
 ```
 
-The first command in each block assigns the VM's lab address. The second adds a route to the opposite subnet through R1. Both commands change runtime state only. The persistent NetworkManager configuration is pending and will replace this temporary setup after it is verified.
+The first command in each block assigns the VM's lab address. The second adds a route to the opposite subnet through R1. These commands change runtime state only and were replaced by the persistent profiles below.
+
 
 ## Connectivity checks
 
