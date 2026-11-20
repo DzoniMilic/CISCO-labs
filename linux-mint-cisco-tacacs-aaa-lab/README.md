@@ -5,6 +5,8 @@ This lab is being built and documented from a two-subnet GNS3 topology. Linux Mi
 ## Current status
 
 The network path between both Mint VMs and R1 is working, including routing between the client and server subnets. TACACS+ installation, AAA configuration, SSH access, and role testing are still to be completed.
+The network path between both Mint VMs and R1 is working, including persistent addressing and routing between the client and server subnets. TACACS+ installation, AAA configuration, SSH access, and role testing are still to be completed.
+
 
 ## Current topology
 
